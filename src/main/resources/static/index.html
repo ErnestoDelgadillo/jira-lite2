@@ -3,20 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jira Lite - Task Management Backend</title>
+    <title>Jira Lite - Task Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #0052cc;
             --primary-hover: #0747a6;
+            --primary-light: #deebff;
+            --sidebar-bg: #0747a6;
             --bg: #f4f5f7;
-            --surface: #ffffff;
-            --text: #172b4d;
-            --text-secondary: #5e6c84;
+            --card-bg: #ffffff;
+            --text-main: #172b4d;
+            --text-sub: #5e6c84;
             --border: #dfe1e6;
-            --success: #36b37e;
-            --warning: #ffab00;
-            --danger: #de350b;
-            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --border-hover: #b3bac5;
+
+            /* Status Column Colors */
+            --status-open: #42526e;
+            --status-inprogress: #0052cc;
+            --status-inreview: #ff8b00;
+            --status-done: #00875a;
+            --status-closed: #5243aa;
+
+            /* Priority Colors */
+            --prio-low: #00875a;
+            --prio-medium: #ffab00;
+            --prio-high: #ff5630;
+            --prio-critical: #de350b;
+
+            --radius: 6px;
+            --shadow-sm: 0 1px 2px rgba(9, 30, 66, 0.1);
+            --shadow-md: 0 4px 8px -2px rgba(9, 30, 66, 0.15), 0 0 1px rgba(9, 30, 66, 0.2);
+            --shadow-lg: 0 12px 24px -6px rgba(9, 30, 66, 0.2), 0 0 1px rgba(9, 30, 66, 0.25);
         }
 
         * {
@@ -26,115 +46,193 @@
         }
 
         body {
-            font-family: var(--font-family);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg);
-            color: var(--text);
-            line-height: 1.5;
-            padding: 30px 20px;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        header {
-            background: var(--surface);
-            padding: 24px 30px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 24px;
+        /* Top Navbar */
+        .navbar {
+            background-color: #ffffff;
+            height: 56px;
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 15px;
+            padding: 0 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .badge-online {
-            background-color: #e3fcef;
-            color: #006644;
-            padding: 6px 14px;
-            border-radius: 16px;
-            font-weight: 600;
-            font-size: 13px;
-            display: inline-flex;
+        .nav-left {
+            display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 20px;
         }
 
-        .badge-online::before {
-            content: "";
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #36b37e;
-            border-radius: 50%;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: -0.3px;
         }
 
-        h1 {
-            font-size: 26px;
+        .brand svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--primary);
+        }
+
+        .project-select-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .project-select-wrapper select {
+            padding: 6px 12px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: #fafbfc;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .nav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 100%;
+        }
+
+        .nav-tab {
+            padding: 16px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-sub);
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-tab:hover {
             color: var(--primary);
         }
 
-        p.subtitle {
-            color: var(--text-secondary);
-            font-size: 14px;
-            margin-top: 4px;
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 24px;
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        @media (max-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .card {
-            background: var(--surface);
-            padding: 20px 24px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .card h2 {
-            font-size: 18px;
-            margin-bottom: 12px;
-            color: var(--text);
-            border-bottom: 2px solid #ebecf0;
-            padding-bottom: 8px;
-        }
-
-        .accounts-table {
-            width: 100%;
-            border-collapse: collapse;
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border-radius: var(--radius);
             font-size: 13px;
-        }
-
-        .accounts-table th, .accounts-table td {
-            text-align: left;
-            padding: 8px 10px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .accounts-table th {
-            background: #fafbfc;
-            color: var(--text-secondary);
-        }
-
-        .role-pill {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
             font-weight: 600;
-            font-size: 11px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: #ebecf0;
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background-color: #dfe1e6;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border-color: var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background: #ebecf0;
+        }
+
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        .btn-danger {
+            background-color: #de350b;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #bf2600;
+        }
+
+        .user-profile-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fafbfc;
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
             text-transform: uppercase;
+        }
+
+        .role-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .role-ADMIN { background: #ffebe6; color: #bf2600; }
@@ -142,377 +240,1853 @@
         .role-DEVELOPER { background: #deebff; color: #0747a6; }
         .role-VIEWER { background: #e3fcef; color: #006644; }
 
-        .btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-weight: 600;
-            cursor: pointer;
+        /* Main Container */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Filter Toolbar */
+        .toolbar {
+            background: #ffffff;
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .toolbar-filters {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 6px 12px 6px 30px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
             font-size: 13px;
-            transition: background 0.2s;
+            width: 220px;
         }
 
-        .btn:hover {
-            background: var(--primary-hover);
+        .search-box svg {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            fill: var(--text-sub);
         }
 
-        .btn-sm {
-            padding: 4px 10px;
-            font-size: 12px;
+        .filter-select {
+            padding: 6px 10px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            font-size: 13px;
+            background: white;
+            color: var(--text-main);
         }
 
-        .btn-outline {
-            background: transparent;
-            color: var(--primary);
-            border: 1px solid var(--primary);
+        /* Kanban Board */
+        .board-container {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            align-items: flex-start;
+            padding-bottom: 16px;
+            min-height: calc(100vh - 200px);
         }
 
-        .btn-outline:hover {
-            background: #ebf2ff;
-        }
-
-        .interactive-form {
+        .board-column {
+            background: #ebecf0;
+            border-radius: var(--radius);
+            width: 300px;
+            min-width: 300px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            max-height: calc(100vh - 180px);
+        }
+
+        .column-header {
+            padding: 12px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid transparent;
+        }
+
+        .column-header-open { border-bottom-color: var(--status-open); color: var(--status-open); }
+        .column-header-inprogress { border-bottom-color: var(--status-inprogress); color: var(--status-inprogress); }
+        .column-header-inreview { border-bottom-color: var(--status-inreview); color: var(--status-inreview); }
+        .column-header-done { border-bottom-color: var(--status-done); color: var(--status-done); }
+        .column-header-closed { border-bottom-color: var(--status-closed); color: var(--status-closed); }
+
+        .column-count {
+            background: rgba(9, 30, 66, 0.08);
+            color: var(--text-sub);
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .column-cards {
+            padding: 8px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .task-card {
+            background: #ffffff;
+            border-radius: var(--radius);
+            padding: 12px 14px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(9, 30, 66, 0.08);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .task-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--border-hover);
+            transform: translateY(-1px);
+        }
+
+        .task-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            line-height: 1.35;
+        }
+
+        .task-card-tags {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .tag-sprint {
+            background: #f4f5f7;
+            color: var(--text-sub);
+            border: 1px solid var(--border);
+        }
+
+        .tag-prio-LOW { background: #e3fcef; color: #006644; }
+        .tag-prio-MEDIUM { background: #fff0b3; color: #172b4d; }
+        .tag-prio-HIGH { background: #ffebe6; color: #de350b; }
+        .tag-prio-CRITICAL { background: #de350b; color: #ffffff; }
+
+        .task-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .task-id {
+            font-weight: 700;
+            color: var(--text-sub);
+            font-size: 11px;
+        }
+
+        .card-assignee {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .card-actions {
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px dashed var(--border);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* Modals & Drawers */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(9, 30, 66, 0.54);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: modalFadeIn 0.2s ease-out;
+        }
+
+        .modal-lg {
+            max-width: 850px;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--text-sub);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .modal-close:hover {
+            background: #ebecf0;
+        }
+
+        .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-footer {
+            padding: 14px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            background: #fafbfc;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
         }
 
         .form-group label {
             font-size: 12px;
             font-weight: 600;
-            color: var(--text-secondary);
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
-        select, input {
+        .form-control {
             padding: 8px 12px;
             border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 13px;
+            border-radius: var(--radius);
+            font-size: 14px;
             font-family: inherit;
+            color: var(--text-main);
+            transition: border-color 0.15s;
         }
 
-        select:focus, input:focus {
+        .form-control:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.2);
         }
 
-        pre {
-            background: #253858;
-            color: #f4f5f7;
-            padding: 12px 16px;
-            border-radius: 6px;
-            font-size: 12px;
-            overflow-x: auto;
-            max-height: 250px;
-            font-family: SFMono-Medium, "SF Mono", "Segoe UI Mono", Menlo, Courier, monospace;
+        textarea.form-control {
+            min-height: 80px;
+            resize: vertical;
         }
 
-        .action-bar {
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Detail Modal Specifics */
+        .detail-layout {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 20px;
+        }
+
+        .detail-meta-box {
+            background: #fafbfc;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px;
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 10px;
+            flex-direction: column;
+            gap: 12px;
         }
 
-        .api-table {
+        .detail-meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-meta-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+        }
+
+        .workflow-bar {
+            background: #f4f5f7;
+            padding: 12px 14px;
+            border-radius: var(--radius);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .comments-section {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .comment-card {
+            background: #fafbfc;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 10px 14px;
+            font-size: 13px;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .comment-author {
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .comment-time {
+            color: var(--text-sub);
+            font-size: 11px;
+        }
+
+        /* Audit Log & Table Views */
+        .table-view-card {
+            background: #ffffff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 20px;
+        }
+
+        .styled-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
-            margin-top: 10px;
         }
 
-        .api-table th, .api-table td {
-            padding: 8px 12px;
+        .styled-table th, .styled-table td {
+            padding: 10px 12px;
             border-bottom: 1px solid var(--border);
             text-align: left;
         }
 
-        .api-table th {
+        .styled-table th {
             background: #fafbfc;
-            color: var(--text-secondary);
-        }
-
-        .method {
+            color: var(--text-sub);
             font-weight: 700;
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 3px;
-            display: inline-block;
         }
 
-        .method-GET { background: #e3fcef; color: #006644; }
-        .method-POST { background: #deebff; color: #0747a6; }
-        .method-PUT, .method-PATCH { background: #fff0b3; color: #172b4d; }
-        .method-DELETE { background: #ffebe6; color: #bf2600; }
+        /* Toast Notifications */
+        #toastContainer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: #172b4d;
+            color: white;
+            padding: 12px 18px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: toastIn 0.25s ease-out;
+            min-width: 280px;
+        }
+
+        .toast-success { background: #00875a; }
+        .toast-error { background: #de350b; }
+        .toast-warning { background: #ffab00; color: #172b4d; }
+
+        @keyframes toastIn {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Auth Screen */
+        .auth-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 120px);
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: white;
+            padding: 36px 40px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .auth-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        .auth-sub {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .quick-users {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .quick-users-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .quick-user-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <header>
-        <div>
-            <h1>Jira Lite</h1>
-            <p class="subtitle">Task Management API &mdash; Spring Boot 3.3.5 &bull; Java 21 &bull; Spring Security JWT</p>
-        </div>
-        <div>
-            <span class="badge-online">Application Running</span>
-        </div>
-    </header>
 
-    <div class="grid">
-        <!-- Pre-configured Credentials -->
-        <div class="card">
-            <h2>Pre-configured Test Accounts</h2>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
-                The application starts with default accounts seeded in the H2 in-memory database:
-            </p>
-            <table class="accounts-table">
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>Password</th>
-                        <th>Role</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>admin</strong></td>
-                        <td><code>admin123</code></td>
-                        <td><span class="role-pill role-ADMIN">ADMIN</span></td>
-                        <td><button class="btn btn-sm btn-outline" onclick="selectUser('admin', 'admin123')">Select</button></td>
-                    </tr>
-                    <tr>
-                        <td><strong>manager</strong></td>
-                        <td><code>manager123</code></td>
-                        <td><span class="role-pill role-MANAGER">MANAGER</span></td>
-                        <td><button class="btn btn-sm btn-outline" onclick="selectUser('manager', 'manager123')">Select</button></td>
-                    </tr>
-                    <tr>
-                        <td><strong>developer</strong></td>
-                        <td><code>developer123</code></td>
-                        <td><span class="role-pill role-DEVELOPER">DEVELOPER</span></td>
-                        <td><button class="btn btn-sm btn-outline" onclick="selectUser('developer', 'developer123')">Select</button></td>
-                    </tr>
-                    <tr>
-                        <td><strong>viewer</strong></td>
-                        <td><code>viewer123</code></td>
-                        <td><span class="role-pill role-VIEWER">VIEWER</span></td>
-                        <td><button class="btn btn-sm btn-outline" onclick="selectUser('viewer', 'viewer123')">Select</button></td>
-                    </tr>
-                </tbody>
-            </table>
-            <div style="margin-top: 15px; font-size: 13px;">
-                <strong>Database Console:</strong> <a href="/h2-console" target="_blank" style="color: var(--primary);">/h2-console</a>
-                <br>
-                <span style="font-size: 12px; color: var(--text-secondary);">JDBC URL: <code>jdbc:h2:mem:jiralitedb</code> &bull; User: <code>sa</code> &bull; Password: (empty)</span>
+<!-- Toast Notification Container -->
+<div id="toastContainer"></div>
+
+<!-- Top Navigation -->
+<header class="navbar" id="appNavbar" style="display: none;">
+    <div class="nav-left">
+        <a href="#" class="brand" onclick="switchTab('board')">
+            <svg viewBox="0 0 24 24"><path d="M11.53 2c0 5.26 4.27 9.53 9.53 9.53V2h-9.53zm-9.53 9.53c5.26 0 9.53 4.27 9.53 9.53v-9.53H2zm9.53 0c0-5.26-4.27-9.53-9.53-9.53v9.53h9.53zm0 0c0 5.26 4.27 9.53 9.53 9.53v-9.53h-9.53z"/></svg>
+            Jira Lite
+        </a>
+
+        <div class="project-select-wrapper">
+            <span>Project:</span>
+            <select id="projectSelect" onchange="onProjectChanged()">
+                <option value="">Loading...</option>
+            </select>
+        </div>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" id="tabBtnBoard" onclick="switchTab('board')">Board</button>
+            <button class="nav-tab" id="tabBtnSprints" onclick="switchTab('sprints')">Sprints</button>
+            <button class="nav-tab" id="tabBtnProjects" onclick="switchTab('projects')">Projects</button>
+            <button class="nav-tab" id="tabBtnAudit" onclick="switchTab('audit')">Audit Log</button>
+            <button class="nav-tab" id="tabBtnUsers" onclick="switchTab('users')" style="display: none;">Users &amp; Roles</button>
+        </nav>
+    </div>
+
+    <div class="nav-right">
+        <button class="btn btn-primary" onclick="openCreateTaskModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            Create Task
+        </button>
+
+        <div class="user-profile-menu">
+            <div class="user-avatar" id="navAvatar">U</div>
+            <div>
+                <strong id="navUsername" style="font-size: 13px;">User</strong>
+                <span class="role-badge" id="navRole">ROLE</span>
+            </div>
+            <select id="switchUserSelect" onchange="switchDemoUser(this.value)" style="border: none; background: transparent; font-size: 12px; color: var(--primary); font-weight: 600; cursor: pointer;">
+                <option value="" disabled selected>Switch</option>
+                <option value="admin">Admin</option>
+                <option value="manager">Manager</option>
+                <option value="developer">Developer</option>
+                <option value="viewer">Viewer</option>
+            </select>
+        </div>
+
+        <button class="btn btn-outline btn-sm" onclick="logout()">Logout</button>
+    </div>
+</header>
+
+<!-- Auth View (Shown when not authenticated) -->
+<div id="authView" class="auth-container">
+    <div class="auth-card">
+        <div style="text-align: center; margin-bottom: 12px;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="#0052cc"><path d="M11.53 2c0 5.26 4.27 9.53 9.53 9.53V2h-9.53zm-9.53 9.53c5.26 0 9.53 4.27 9.53 9.53v-9.53H2zm9.53 0c0-5.26-4.27-9.53-9.53-9.53v9.53h9.53zm0 0c0 5.26 4.27 9.53 9.53 9.53v-9.53h-9.53z"/></svg>
+        </div>
+        <h2 class="auth-title" id="authTitle">Sign In to Jira Lite</h2>
+        <p class="auth-sub" id="authSub">Select a pre-configured account or enter credentials</p>
+
+        <form id="authForm" onsubmit="handleAuthSubmit(event)">
+            <div class="form-group" style="margin-bottom: 14px;">
+                <label>Username</label>
+                <input type="text" id="authUsername" class="form-control" required placeholder="Enter username">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+                <label>Password</label>
+                <input type="password" id="authPassword" class="form-control" required placeholder="Enter password">
+            </div>
+
+            <div class="form-group" id="roleSelectGroup" style="display: none; margin-bottom: 14px;">
+                <label>Role</label>
+                <select id="authRole" class="form-control">
+                    <option value="DEVELOPER">DEVELOPER</option>
+                    <option value="MANAGER">MANAGER</option>
+                    <option value="VIEWER">VIEWER</option>
+                    <option value="ADMIN">ADMIN</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="authSubmitBtn" style="width: 100%; padding: 10px; margin-top: 6px;">Sign In</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 14px;">
+            <a href="#" id="authToggleLink" onclick="toggleAuthMode(event)" style="font-size: 13px; color: var(--primary); text-decoration: none;">Don't have an account? Sign up</a>
+        </div>
+
+        <div class="quick-users">
+            <span class="quick-users-label">Instant Login as:</span>
+            <div class="quick-user-grid">
+                <button class="btn btn-outline btn-sm" onclick="instantLogin('admin', 'admin123')">🔑 Admin</button>
+                <button class="btn btn-outline btn-sm" onclick="instantLogin('manager', 'manager123')">👔 Manager</button>
+                <button class="btn btn-outline btn-sm" onclick="instantLogin('developer', 'developer123')">💻 Developer</button>
+                <button class="btn btn-outline btn-sm" onclick="instantLogin('viewer', 'viewer123')">👁️ Viewer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main App Views -->
+<main class="main-content" id="appMain" style="display: none;">
+
+    <!-- TAB 1: KANBAN BOARD -->
+    <div id="viewBoard">
+        <!-- Filter Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-filters">
+                <div class="search-box">
+                    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    <input type="text" id="filterSearch" placeholder="Search tasks..." oninput="applyTaskFilters()">
+                </div>
+
+                <select id="filterSprint" class="filter-select" onchange="applyTaskFilters()">
+                    <option value="">All Sprints</option>
+                    <option value="BACKLOG">Backlog Only</option>
+                </select>
+
+                <select id="filterAssignee" class="filter-select" onchange="applyTaskFilters()">
+                    <option value="">All Assignees</option>
+                </select>
+
+                <select id="filterPriority" class="filter-select" onchange="applyTaskFilters()">
+                    <option value="">All Priorities</option>
+                    <option value="CRITICAL">Critical</option>
+                    <option value="HIGH">High</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="LOW">Low</option>
+                </select>
+
+                <button class="btn btn-outline btn-sm" onclick="resetFilters()">Reset</button>
+            </div>
+
+            <div>
+                <span id="boardTaskCountSummary" style="font-size: 13px; color: var(--text-sub); font-weight: 500;">0 tasks</span>
             </div>
         </div>
 
-        <!-- Interactive Quick-Test Console -->
-        <div class="card">
-            <h2>Interactive API Tester</h2>
-            <div class="interactive-form">
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="usernameInput" value="admin">
+        <!-- Kanban Board Columns -->
+        <div class="board-container">
+            <!-- OPEN -->
+            <div class="board-column">
+                <div class="column-header column-header-open">
+                    <span>Open</span>
+                    <span class="column-count" id="count-OPEN">0</span>
                 </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="passwordInput" value="admin123">
-                </div>
-                <button class="btn" onclick="login()">Log In &amp; Acquire JWT</button>
+                <div class="column-cards" id="column-OPEN"></div>
+            </div>
 
-                <div class="action-bar" id="testButtons" style="display: none;">
-                    <button class="btn btn-sm btn-outline" onclick="callApi('/api/users')">List Users</button>
-                    <button class="btn btn-sm btn-outline" onclick="callApi('/api/projects')">List Projects</button>
-                    <button class="btn btn-sm btn-outline" onclick="callApi('/api/tasks')">List Tasks</button>
+            <!-- IN_PROGRESS -->
+            <div class="board-column">
+                <div class="column-header column-header-inprogress">
+                    <span>In Progress</span>
+                    <span class="column-count" id="count-IN_PROGRESS">0</span>
                 </div>
+                <div class="column-cards" id="column-IN_PROGRESS"></div>
+            </div>
 
-                <div style="margin-top: 10px;">
-                    <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">Response Log</label>
-                    <pre id="output">Click "Log In" above to authenticate and test endpoints.</pre>
+            <!-- IN_REVIEW -->
+            <div class="board-column">
+                <div class="column-header column-header-inreview">
+                    <span>In Review</span>
+                    <span class="column-count" id="count-IN_REVIEW">0</span>
                 </div>
+                <div class="column-cards" id="column-IN_REVIEW"></div>
+            </div>
+
+            <!-- DONE -->
+            <div class="board-column">
+                <div class="column-header column-header-done">
+                    <span>Done</span>
+                    <span class="column-count" id="count-DONE">0</span>
+                </div>
+                <div class="column-cards" id="column-DONE"></div>
+            </div>
+
+            <!-- CLOSED -->
+            <div class="board-column">
+                <div class="column-header column-header-closed">
+                    <span>Closed</span>
+                    <span class="column-count" id="count-CLOSED">0</span>
+                </div>
+                <div class="column-cards" id="column-CLOSED"></div>
             </div>
         </div>
     </div>
 
-    <!-- API Reference Overview -->
-    <div class="card">
-        <h2>REST API Reference</h2>
-        <table class="api-table">
-            <thead>
-                <tr>
-                    <th>Method</th>
-                    <th>Path</th>
-                    <th>Description</th>
-                    <th>Permissions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><span class="method method-POST">POST</span></td>
-                    <td><code>/api/auth/register</code></td>
-                    <td>Register a new user</td>
-                    <td>Public</td>
-                </tr>
-                <tr>
-                    <td><span class="method method-POST">POST</span></td>
-                    <td><code>/api/auth/login</code></td>
-                    <td>Authenticate and receive JWT token</td>
-                    <td>Public</td>
-                </tr>
-                <tr>
-                    <td><span class="method method-GET">GET</span></td>
-                    <td><code>/api/users</code></td>
-                    <td>List all users</td>
-                    <td>Authenticated</td>
-                </tr>
-                <tr>
-                    <td><span class="method method-PUT">PUT</span></td>
-                    <td><code>/api/users/{id}/role</code></td>
-                    <td>Change a user's role</td>
-                    <td>Admin only</td>
-                </tr>
-                <tr>
-                    <td><span class="method method-POST">POST</span></td>
-                    <td><code>/api/projects</code></td>
-                    <td>Create a project</td>
-                    <td>Manager, Admin</td>
-                </tr>
-                <tr>
-                    <td><span class="method method-GET">GET</span></td>
-                    <td><code>/api/projects</code></td>
-                    <td>List projects</td>
-                    <td>Authenticated</td>
-                </tr>
-                <tr>
-                    <td><span class="method method-POST">POST</span></td>
-                    <td><code>/api/projects/{id}/members</code></td>
-                    <td>Add member to project</td>
-                    <td>Project Manager, Admin</td>
-                </tr>
-                <tr>
-                    <td><span class="method method-POST">POST</span></td>
-                    <td><code>/api/sprints</code></td>
-                    <td>Create sprint</td>
-                    <td>Project Manager, Admin</td>
-                </tr>
-                <tr>
-                    <td><span class="method method-POST">POST</span></td>
-                    <td><code>/api/sprints/{id}/start</code></td>
-                    <td>Start sprint (PLANNED &rarr; ACTIVE)</td>
-                    <td>Project Manager, Admin</td>
-                </tr>
-                <tr>
-                    <td><span class="method method-POST">POST</span></td>
-                    <td><code>/api/sprints/{id}/complete</code></td>
-                    <td>Complete sprint (ACTIVE &rarr; COMPLETED)</td>
-                    <td>Project Manager, Admin</td>
-                </tr>
-                <tr>
-                    <td><span class="method method-POST">POST</span></td>
-                    <td><code>/api/tasks</code></td>
-                    <td>Create task</td>
-                    <td>Developer, Manager, Admin</td>
-                </tr>
-                <tr>
-                    <td><span class="method method-POST">POST</span></td>
-                    <td><code>/api/tasks/{id}/transition</code></td>
-                    <td>Transition task status</td>
-                    <td>Workflow rules &amp; roles</td>
-                </tr>
-                <tr>
-                    <td><span class="method method-GET">GET</span></td>
-                    <td><code>/api/tasks?projectId=&amp;status=&amp;priority=</code></td>
-                    <td>List tasks with filters</td>
-                    <td>Project Member, Admin</td>
-                </tr>
-                <tr>
-                    <td><span class="method method-POST">POST</span></td>
-                    <td><code>/api/tasks/{taskId}/comments</code></td>
-                    <td>Add comment to task</td>
-                    <td>Any Project Member (including Viewer)</td>
-                </tr>
-                <tr>
-                    <td><span class="method method-GET">GET</span></td>
-                    <td><code>/api/audit-logs/projects/{projectId}</code></td>
-                    <td>Read audit log per project</td>
-                    <td>Project Member, Admin</td>
-                </tr>
-                <tr>
-                    <td><span class="method method-GET">GET</span></td>
-                    <td><code>/api/audit-logs/tasks/{taskId}</code></td>
-                    <td>Read audit log per task</td>
-                    <td>Project Member, Admin</td>
-                </tr>
-            </tbody>
-        </table>
+    <!-- TAB 2: SPRINTS -->
+    <div id="viewSprints" style="display: none;">
+        <div class="toolbar">
+            <h2 style="font-size: 18px; font-weight: 700;">Project Sprints</h2>
+            <button class="btn btn-primary" onclick="openCreateSprintModal()" id="btnCreateSprint">
+                + Create Sprint
+            </button>
+        </div>
+        <div id="sprintsList" style="display: flex; flex-direction: column; gap: 16px;"></div>
+    </div>
+
+    <!-- TAB 3: PROJECTS -->
+    <div id="viewProjects" style="display: none;">
+        <div class="toolbar">
+            <h2 style="font-size: 18px; font-weight: 700;">Projects</h2>
+            <button class="btn btn-primary" onclick="openCreateProjectModal()" id="btnCreateProject">
+                + Create Project
+            </button>
+        </div>
+        <div id="projectsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;"></div>
+    </div>
+
+    <!-- TAB 4: AUDIT LOG -->
+    <div id="viewAudit" style="display: none;">
+        <div class="table-view-card">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <h2 style="font-size: 18px; font-weight: 700;">Audit Activity Timeline</h2>
+                <button class="btn btn-outline btn-sm" onclick="loadAuditLogs()">Refresh Activity</button>
+            </div>
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Actor</th>
+                        <th>Event Type</th>
+                        <th>Entity</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody id="auditTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 5: USERS & ROLES (Admin Only) -->
+    <div id="viewUsers" style="display: none;">
+        <div class="table-view-card">
+            <div style="margin-bottom: 16px;">
+                <h2 style="font-size: 18px; font-weight: 700;">User &amp; Role Management (Admin)</h2>
+                <p style="font-size: 13px; color: var(--text-sub);">Assign roles to regulate administrative, project management, and task permissions.</p>
+            </div>
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Current Role</th>
+                        <th>Change Role</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!-- MODAL: CREATE TASK -->
+<div class="modal-overlay" id="modalCreateTask">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Create Task</h3>
+            <button class="modal-close" onclick="closeModal('modalCreateTask')">&times;</button>
+        </div>
+        <form onsubmit="handleCreateTask(event)">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="newTaskTitle" class="form-control" required placeholder="What needs to be done?">
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="newTaskDesc" class="form-control" placeholder="Provide extra details..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select id="newTaskPriority" class="form-control">
+                            <option value="LOW">Low</option>
+                            <option value="MEDIUM" selected>Medium</option>
+                            <option value="HIGH">High</option>
+                            <option value="CRITICAL">Critical</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Assignee</label>
+                        <select id="newTaskAssignee" class="form-control">
+                            <option value="">Unassigned</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Sprint</label>
+                        <select id="newTaskSprint" class="form-control">
+                            <option value="">Backlog (No Sprint)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Due Date</label>
+                        <input type="date" id="newTaskDueDate" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modalCreateTask')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Task</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: TASK DETAILS & COMMENTS -->
+<div class="modal-overlay" id="modalTaskDetail">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="task-id" id="detailTaskId">TASK-#</span>
+                <span class="role-badge" id="detailTaskStatus">OPEN</span>
+            </div>
+            <button class="modal-close" onclick="closeModal('modalTaskDetail')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- Workflow Status Controls -->
+            <div class="workflow-bar">
+                <div style="font-size: 13px; font-weight: 600;">Workflow Transition:</div>
+                <div id="detailWorkflowActions" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+            </div>
+
+            <div class="detail-layout">
+                <!-- Main Body -->
+                <div>
+                    <h2 id="detailTitle" style="font-size: 18px; margin-bottom: 8px; font-weight: 700;">Task Title</h2>
+                    <p id="detailDesc" style="font-size: 14px; color: var(--text-sub); white-space: pre-wrap; margin-bottom: 20px;">No description provided.</p>
+
+                    <!-- Comments Section -->
+                    <div class="comments-section">
+                        <h4 style="font-size: 14px; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 6px;">Comments</h4>
+                        <div id="commentsList" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto;"></div>
+
+                        <form onsubmit="handleAddComment(event)" style="margin-top: 10px;">
+                            <textarea id="newCommentBody" class="form-control" placeholder="Add a comment... (All project members can comment)" required style="min-height: 60px;"></textarea>
+                            <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+                                <button type="submit" class="btn btn-primary btn-sm">Save Comment</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Metadata Sidebar -->
+                <div class="detail-meta-box">
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Priority</span>
+                        <span id="detailPriority" class="tag" style="align-self: flex-start;">MEDIUM</span>
+                    </div>
+
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Assignee</span>
+                        <div style="display: flex; align-items: center; gap: 6px;" id="detailAssigneeContainer">
+                            <div class="user-avatar" style="width: 22px; height: 22px; font-size: 10px;" id="detailAssigneeAvatar">?</div>
+                            <span id="detailAssignee" style="font-size: 13px; font-weight: 500;">Unassigned</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Reporter</span>
+                        <span id="detailReporter" style="font-size: 13px;">Unknown</span>
+                    </div>
+
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Sprint</span>
+                        <span id="detailSprint" style="font-size: 13px; font-weight: 500;">Backlog</span>
+                    </div>
+
+                    <div class="detail-meta-item">
+                        <span class="detail-meta-label">Due Date</span>
+                        <span id="detailDueDate" style="font-size: 13px;">None</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: CREATE SPRINT -->
+<div class="modal-overlay" id="modalCreateSprint">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Create Sprint</h3>
+            <button class="modal-close" onclick="closeModal('modalCreateSprint')">&times;</button>
+        </div>
+        <form onsubmit="handleCreateSprint(event)">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Sprint Name *</label>
+                    <input type="text" id="newSprintName" class="form-control" required placeholder="e.g. Sprint 2 - Integration">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" id="newSprintStart" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" id="newSprintEnd" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modalCreateSprint')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Sprint</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: CREATE PROJECT -->
+<div class="modal-overlay" id="modalCreateProject">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Create Project</h3>
+            <button class="modal-close" onclick="closeModal('modalCreateProject')">&times;</button>
+        </div>
+        <form onsubmit="handleCreateProject(event)">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Project Name *</label>
+                    <input type="text" id="newProjectName" class="form-control" required placeholder="e.g. Platform API">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="newProjectDesc" class="form-control" placeholder="Project goals and scope..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modalCreateProject')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Project</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: MANAGE MEMBERS -->
+<div class="modal-overlay" id="modalMembers">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Manage Project Members</h3>
+            <button class="modal-close" onclick="closeModal('modalMembers')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Add Member to Project</label>
+                <div style="display: flex; gap: 8px;">
+                    <select id="addMemberUserSelect" class="form-control"></select>
+                    <button class="btn btn-primary btn-sm" onclick="handleAddMember()">Add</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 15px;">
+                <label style="font-size: 12px; font-weight: 700; color: var(--text-sub); text-transform: uppercase;">Current Members</label>
+                <div id="projectMembersList" style="display: flex; flex-direction: column; gap: 6px; margin-top: 8px;"></div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    let currentToken = null;
+    // Global Application State
+    const state = {
+        token: localStorage.getItem('jiralite_token') || null,
+        currentUser: JSON.parse(localStorage.getItem('jiralite_user') || 'null'),
+        currentProject: null,
+        projects: [],
+        tasks: [],
+        sprints: [],
+        users: [],
+        activeTab: 'board',
+        selectedTaskId: null,
+        isRegisterMode: false
+    };
 
-    function selectUser(username, password) {
-        document.getElementById('usernameInput').value = username;
-        document.getElementById('passwordInput').value = password;
-        login();
+    // Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+        if (state.token && state.currentUser) {
+            initApp();
+        } else {
+            showAuth();
+        }
+    });
+
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `<span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 250);
+        }, 3500);
     }
 
-    async function login() {
-        const username = document.getElementById('usernameInput').value;
-        const password = document.getElementById('passwordInput').value;
-        const output = document.getElementById('output');
-        output.textContent = "Logging in...";
+    // Generic API Helper
+    async function api(path, options = {}) {
+        const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+        if (state.token) {
+            headers['Authorization'] = `Bearer ${state.token}`;
+        }
+        const res = await fetch(path, { ...options, headers });
 
+        if (res.status === 401) {
+            logout();
+            showToast('Session expired or unauthorized. Please sign in.', 'error');
+            throw new Error('Unauthorized');
+        }
+
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+            const errorMsg = data?.message || data?.error || 'Request failed';
+            showToast(errorMsg, 'error');
+            throw new Error(errorMsg);
+        }
+
+        return data;
+    }
+
+    // Auth Handling
+    function showAuth() {
+        document.getElementById('appNavbar').style.display = 'none';
+        document.getElementById('appMain').style.display = 'none';
+        document.getElementById('authView').style.display = 'flex';
+    }
+
+    function toggleAuthMode(e) {
+        if (e) e.preventDefault();
+        state.isRegisterMode = !state.isRegisterMode;
+        document.getElementById('roleSelectGroup').style.display = state.isRegisterMode ? 'block' : 'none';
+        document.getElementById('authTitle').textContent = state.isRegisterMode ? 'Create Jira Lite Account' : 'Sign In to Jira Lite';
+        document.getElementById('authSubmitBtn').textContent = state.isRegisterMode ? 'Register' : 'Sign In';
+        document.getElementById('authToggleLink').textContent = state.isRegisterMode ? 'Already have an account? Sign in' : "Don't have an account? Sign up";
+    }
+
+    async function handleAuthSubmit(e) {
+        e.preventDefault();
+        const username = document.getElementById('authUsername').value.trim();
+        const password = document.getElementById('authPassword').value;
+        const role = document.getElementById('authRole').value;
+
+        if (state.isRegisterMode) {
+            try {
+                await api('/api/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password, role })
+                });
+                showToast('Registration successful! Logging in...');
+                await login(username, password);
+            } catch (err) {}
+        } else {
+            await login(username, password);
+        }
+    }
+
+    async function instantLogin(u, p) {
+        document.getElementById('authUsername').value = u;
+        document.getElementById('authPassword').value = p;
+        await login(u, p);
+    }
+
+    async function login(username, password) {
         try {
-            const res = await fetch('/api/auth/login', {
+            const data = await api('/api/auth/login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
             });
-            const data = await res.json();
-            output.textContent = JSON.stringify(data, null, 2);
 
-            if (res.ok && data.token) {
-                currentToken = data.token;
-                document.getElementById('testButtons').style.display = 'flex';
-            }
+            state.token = data.token;
+            state.currentUser = { id: data.id, username: data.username, role: data.role };
+            localStorage.setItem('jiralite_token', state.token);
+            localStorage.setItem('jiralite_user', JSON.stringify(state.currentUser));
+
+            showToast(`Welcome back, ${data.username}!`);
+            initApp();
+        } catch (err) {}
+    }
+
+    function logout() {
+        state.token = null;
+        state.currentUser = null;
+        localStorage.removeItem('jiralite_token');
+        localStorage.removeItem('jiralite_user');
+        showAuth();
+    }
+
+    async function switchDemoUser(username) {
+        const passwords = { admin: 'admin123', manager: 'manager123', developer: 'developer123', viewer: 'viewer123' };
+        await login(username, passwords[username] || 'password');
+    }
+
+    // Main App Initialization
+    async function initApp() {
+        document.getElementById('authView').style.display = 'none';
+        document.getElementById('appNavbar').style.display = 'flex';
+        document.getElementById('appMain').style.display = 'block';
+
+        // Update nav user badge
+        document.getElementById('navUsername').textContent = state.currentUser.username;
+        document.getElementById('navRole').textContent = state.currentUser.role;
+        document.getElementById('navRole').className = `role-badge role-${state.currentUser.role}`;
+        document.getElementById('navAvatar').textContent = state.currentUser.username.charAt(0);
+
+        // Show Admin tab if admin
+        document.getElementById('tabBtnUsers').style.display = state.currentUser.role === 'ADMIN' ? 'block' : 'none';
+
+        // Load project list & all system users
+        await Promise.all([loadProjects(), loadAllUsers()]);
+        await loadProjectData();
+    }
+
+    async function loadAllUsers() {
+        try {
+            state.users = await api('/api/users');
         } catch (err) {
-            output.textContent = "Error: " + err.message;
+            state.users = [];
         }
     }
 
-    async function callApi(path) {
-        if (!currentToken) {
-            alert("Please log in first!");
-            return;
+    async function loadProjects() {
+        try {
+            state.projects = await api('/api/projects');
+            const select = document.getElementById('projectSelect');
+            select.innerHTML = '';
+
+            if (state.projects.length === 0) {
+                select.innerHTML = '<option value="">No Projects Found</option>';
+                return;
+            }
+
+            state.projects.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.name;
+                select.appendChild(opt);
+            });
+
+            if (!state.currentProject || !state.projects.some(p => p.id === state.currentProject.id)) {
+                state.currentProject = state.projects[0];
+            }
+            select.value = state.currentProject.id;
+        } catch (err) {}
+    }
+
+    async function onProjectChanged() {
+        const select = document.getElementById('projectSelect');
+        const selectedId = Number(select.value);
+        state.currentProject = state.projects.find(p => p.id === selectedId) || null;
+        await loadProjectData();
+    }
+
+    async function loadProjectData() {
+        if (!state.currentProject) return;
+        await Promise.all([loadTasks(), loadSprints()]);
+        renderCurrentTab();
+    }
+
+    async function loadTasks() {
+        if (!state.currentProject) return;
+        try {
+            state.tasks = await api(`/api/tasks?projectId=${state.currentProject.id}`);
+            renderBoard();
+        } catch (err) {}
+    }
+
+    async function loadSprints() {
+        if (!state.currentProject) return;
+        try {
+            state.sprints = await api(`/api/sprints?projectId=${state.currentProject.id}`);
+            updateSprintFilterOptions();
+        } catch (err) {}
+    }
+
+    function updateSprintFilterOptions() {
+        const select = document.getElementById('filterSprint');
+        select.innerHTML = '<option value="">All Sprints</option><option value="BACKLOG">Backlog Only</option>';
+        state.sprints.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.id;
+            opt.textContent = `${s.name} (${s.status})`;
+            select.appendChild(opt);
+        });
+
+        const taskSprintSelect = document.getElementById('newTaskSprint');
+        taskSprintSelect.innerHTML = '<option value="">Backlog (No Sprint)</option>';
+        state.sprints.forEach(s => {
+            if (s.status !== 'COMPLETED') {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = s.name;
+                taskSprintSelect.appendChild(opt);
+            }
+        });
+    }
+
+    function updateAssigneeFilterOptions() {
+        const select = document.getElementById('filterAssignee');
+        const taskAssigneeSelect = document.getElementById('newTaskAssignee');
+
+        select.innerHTML = '<option value="">All Assignees</option>';
+        taskAssigneeSelect.innerHTML = '<option value="">Unassigned</option>';
+
+        const members = state.currentProject?.members || [];
+        members.forEach(m => {
+            const opt1 = document.createElement('option');
+            opt1.value = m.id;
+            opt1.textContent = `${m.username} (${m.role})`;
+            select.appendChild(opt1);
+
+            const opt2 = document.createElement('option');
+            opt2.value = m.id;
+            opt2.textContent = `${m.username} (${m.role})`;
+            taskAssigneeSelect.appendChild(opt2);
+        });
+    }
+
+    // Navigation Tabs
+    function switchTab(tabId) {
+        state.activeTab = tabId;
+        ['board', 'sprints', 'projects', 'audit', 'users'].forEach(t => {
+            const view = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
+            const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+            if (view) view.style.display = t === tabId ? 'block' : 'none';
+            if (btn) btn.className = `nav-tab ${t === tabId ? 'active' : ''}`;
+        });
+
+        renderCurrentTab();
+    }
+
+    function renderCurrentTab() {
+        updateAssigneeFilterOptions();
+        if (state.activeTab === 'board') renderBoard();
+        else if (state.activeTab === 'sprints') renderSprints();
+        else if (state.activeTab === 'projects') renderProjects();
+        else if (state.activeTab === 'audit') loadAuditLogs();
+        else if (state.activeTab === 'users') renderUsers();
+    }
+
+    // Board Rendering & Filtering
+    function applyTaskFilters() {
+        renderBoard();
+    }
+
+    function resetFilters() {
+        document.getElementById('filterSearch').value = '';
+        document.getElementById('filterSprint').value = '';
+        document.getElementById('filterAssignee').value = '';
+        document.getElementById('filterPriority').value = '';
+        renderBoard();
+    }
+
+    function renderBoard() {
+        const search = document.getElementById('filterSearch').value.toLowerCase().trim();
+        const sprintFilter = document.getElementById('filterSprint').value;
+        const assigneeFilter = document.getElementById('filterAssignee').value;
+        const priorityFilter = document.getElementById('filterPriority').value;
+
+        const columns = {
+            OPEN: document.getElementById('column-OPEN'),
+            IN_PROGRESS: document.getElementById('column-IN_PROGRESS'),
+            IN_REVIEW: document.getElementById('column-IN_REVIEW'),
+            DONE: document.getElementById('column-DONE'),
+            CLOSED: document.getElementById('column-CLOSED')
+        };
+
+        const counts = { OPEN: 0, IN_PROGRESS: 0, IN_REVIEW: 0, DONE: 0, CLOSED: 0 };
+        Object.values(columns).forEach(col => col.innerHTML = '');
+
+        const filtered = state.tasks.filter(t => {
+            if (search && !t.title.toLowerCase().includes(search) && !(t.description || '').toLowerCase().includes(search)) return false;
+            if (sprintFilter === 'BACKLOG' && t.sprintId != null) return false;
+            if (sprintFilter && sprintFilter !== 'BACKLOG' && t.sprintId != sprintFilter) return false;
+            if (assigneeFilter && (!t.assignee || t.assignee.id != assigneeFilter)) return false;
+            if (priorityFilter && t.priority !== priorityFilter) return false;
+            return true;
+        });
+
+        filtered.forEach(task => {
+            counts[task.status] = (counts[task.status] || 0) + 1;
+            const card = createTaskCard(task);
+            if (columns[task.status]) {
+                columns[task.status].appendChild(card);
+            }
+        });
+
+        Object.keys(counts).forEach(status => {
+            const countEl = document.getElementById(`count-${status}`);
+            if (countEl) countEl.textContent = counts[status];
+        });
+
+        document.getElementById('boardTaskCountSummary').textContent = `${filtered.length} of ${state.tasks.length} tasks`;
+    }
+
+    function createTaskCard(task) {
+        const card = document.createElement('div');
+        card.className = 'task-card';
+        card.onclick = () => openTaskDetail(task.id);
+
+        const assigneeInitial = task.assignee ? task.assignee.username.charAt(0).toUpperCase() : '?';
+        const assigneeName = task.assignee ? task.assignee.username : 'Unassigned';
+
+        // Workflow transition action button
+        let transitionBtnHtml = '';
+        const userRole = state.currentUser?.role;
+
+        if (task.status === 'OPEN') {
+            transitionBtnHtml = `<button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); transitionTask(${task.id}, 'IN_PROGRESS')">→ Start</button>`;
+        } else if (task.status === 'IN_PROGRESS') {
+            transitionBtnHtml = `<button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); transitionTask(${task.id}, 'IN_REVIEW')">→ Review</button>`;
+        } else if (task.status === 'IN_REVIEW') {
+            transitionBtnHtml = `<button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); transitionTask(${task.id}, 'DONE')">✓ Done</button>`;
+        } else if (task.status === 'DONE') {
+            if (userRole === 'ADMIN' || userRole === 'MANAGER') {
+                transitionBtnHtml = `<button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); transitionTask(${task.id}, 'CLOSED')">🔒 Close</button>`;
+            } else {
+                transitionBtnHtml = `<span style="font-size:11px;color:var(--text-sub)">(Manager/Admin to close)</span>`;
+            }
+        } else if (task.status === 'CLOSED') {
+            if (userRole === 'ADMIN' || userRole === 'MANAGER') {
+                transitionBtnHtml = `<button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); transitionTask(${task.id}, 'OPEN')">↺ Reopen</button>`;
+            } else {
+                transitionBtnHtml = `<span style="font-size:11px;color:var(--text-sub)">(Manager/Admin to reopen)</span>`;
+            }
         }
-        const output = document.getElementById('output');
-        output.textContent = "Calling " + path + "...";
+
+        card.innerHTML = `
+            <div class="task-card-title">${escapeHtml(task.title)}</div>
+            <div class="task-card-tags">
+                <span class="tag tag-prio-${task.priority}">${task.priority}</span>
+                ${task.sprintName ? `<span class="tag tag-sprint">${escapeHtml(task.sprintName)}</span>` : '<span class="tag tag-sprint">Backlog</span>'}
+            </div>
+            <div class="task-card-footer">
+                <span class="task-id">#${task.id}</span>
+                <div class="card-assignee">
+                    <div class="user-avatar" style="width: 20px; height: 20px; font-size: 10px;">${assigneeInitial}</div>
+                    <span style="font-size: 12px;">${escapeHtml(assigneeName)}</span>
+                </div>
+            </div>
+            <div class="card-actions">
+                ${transitionBtnHtml}
+            </div>
+        `;
+        return card;
+    }
+
+    // Task Status Transition
+    async function transitionTask(taskId, targetStatus) {
+        try {
+            await api(`/api/tasks/${taskId}/transition`, {
+                method: 'POST',
+                body: JSON.stringify({ status: targetStatus })
+            });
+            showToast(`Task #${taskId} transitioned to ${targetStatus}`);
+            await loadTasks();
+            if (state.selectedTaskId === taskId) {
+                openTaskDetail(taskId);
+            }
+        } catch (err) {}
+    }
+
+    // Task Detail Drawer
+    async function openTaskDetail(taskId) {
+        state.selectedTaskId = taskId;
+        try {
+            const task = await api(`/api/tasks/${taskId}`);
+            document.getElementById('detailTaskId').textContent = `#${task.id}`;
+            document.getElementById('detailTitle').textContent = task.title;
+            document.getElementById('detailDesc').textContent = task.description || 'No description provided.';
+            document.getElementById('detailTaskStatus').textContent = task.status;
+            document.getElementById('detailTaskStatus').className = `role-badge column-header-${task.status.toLowerCase().replace('_', '')}`;
+            document.getElementById('detailPriority').textContent = task.priority;
+            document.getElementById('detailPriority').className = `tag tag-prio-${task.priority}`;
+            document.getElementById('detailSprint').textContent = task.sprintName || 'Backlog';
+            document.getElementById('detailDueDate').textContent = task.dueDate || 'None';
+            document.getElementById('detailReporter').textContent = task.reporter?.username || 'System';
+
+            if (task.assignee) {
+                document.getElementById('detailAssignee').textContent = task.assignee.username;
+                document.getElementById('detailAssigneeAvatar').textContent = task.assignee.username.charAt(0).toUpperCase();
+            } else {
+                document.getElementById('detailAssignee').textContent = 'Unassigned';
+                document.getElementById('detailAssigneeAvatar').textContent = '?';
+            }
+
+            // Allowed Workflow Actions Bar
+            const actionsContainer = document.getElementById('detailWorkflowActions');
+            actionsContainer.innerHTML = '';
+            const userRole = state.currentUser?.role;
+
+            if (task.status === 'OPEN') {
+                actionsContainer.innerHTML = `<button class="btn btn-sm btn-primary" onclick="transitionTask(${task.id}, 'IN_PROGRESS')">Move to In Progress &rarr;</button>`;
+            } else if (task.status === 'IN_PROGRESS') {
+                actionsContainer.innerHTML = `<button class="btn btn-sm btn-primary" onclick="transitionTask(${task.id}, 'IN_REVIEW')">Move to In Review &rarr;</button>`;
+            } else if (task.status === 'IN_REVIEW') {
+                actionsContainer.innerHTML = `<button class="btn btn-sm btn-primary" onclick="transitionTask(${task.id}, 'DONE')">Mark Done &rarr;</button>`;
+            } else if (task.status === 'DONE') {
+                if (userRole === 'ADMIN' || userRole === 'MANAGER') {
+                    actionsContainer.innerHTML = `<button class="btn btn-sm btn-primary" onclick="transitionTask(${task.id}, 'CLOSED')">Close Task (Manager/Admin)</button>`;
+                } else {
+                    actionsContainer.innerHTML = `<span style="font-size:12px; color:var(--text-sub);">Only Managers and Admins can close this task</span>`;
+                }
+            } else if (task.status === 'CLOSED') {
+                if (userRole === 'ADMIN' || userRole === 'MANAGER') {
+                    actionsContainer.innerHTML = `<button class="btn btn-sm btn-outline" onclick="transitionTask(${task.id}, 'OPEN')">Reopen to Open (Manager/Admin)</button>`;
+                } else {
+                    actionsContainer.innerHTML = `<span style="font-size:12px; color:var(--text-sub);">Only Managers and Admins can reopen this task</span>`;
+                }
+            }
+
+            // Load comments
+            await loadComments(taskId);
+            openModal('modalTaskDetail');
+        } catch (err) {}
+    }
+
+    async function loadComments(taskId) {
+        try {
+            const comments = await api(`/api/tasks/${taskId}/comments`);
+            const container = document.getElementById('commentsList');
+            container.innerHTML = '';
+
+            if (comments.length === 0) {
+                container.innerHTML = '<span style="font-size: 13px; color: var(--text-sub);">No comments yet.</span>';
+                return;
+            }
+
+            comments.forEach(c => {
+                const item = document.createElement('div');
+                item.className = 'comment-card';
+                const formattedTime = new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date(c.createdAt).toLocaleDateString();
+                item.innerHTML = `
+                    <div class="comment-header">
+                        <span class="comment-author">${escapeHtml(c.author.username)} (${c.author.role})</span>
+                        <span class="comment-time">${formattedTime}</span>
+                    </div>
+                    <div style="color: var(--text-main);">${escapeHtml(c.body)}</div>
+                `;
+                container.appendChild(item);
+            });
+        } catch (err) {}
+    }
+
+    async function handleAddComment(e) {
+        e.preventDefault();
+        const bodyInput = document.getElementById('newCommentBody');
+        const body = bodyInput.value.trim();
+        if (!body || !state.selectedTaskId) return;
 
         try {
-            const res = await fetch(path, {
-                headers: {
-                    'Authorization': 'Bearer ' + currentToken
-                }
+            await api(`/api/tasks/${state.selectedTaskId}/comments`, {
+                method: 'POST',
+                body: JSON.stringify({ body })
             });
-            const data = await res.json();
-            output.textContent = JSON.stringify(data, null, 2);
-        } catch (err) {
-            output.textContent = "Error: " + err.message;
+            bodyInput.value = '';
+            showToast('Comment added');
+            await loadComments(state.selectedTaskId);
+        } catch (err) {}
+    }
+
+    // Create Task Modal
+    function openCreateTaskModal() {
+        if (!state.currentProject) {
+            showToast('Please select or create a project first', 'error');
+            return;
         }
+        updateAssigneeFilterOptions();
+        openModal('modalCreateTask');
+    }
+
+    async function handleCreateTask(e) {
+        e.preventDefault();
+        const title = document.getElementById('newTaskTitle').value.trim();
+        const description = document.getElementById('newTaskDesc').value.trim();
+        const priority = document.getElementById('newTaskPriority').value;
+        const assigneeId = document.getElementById('newTaskAssignee').value || null;
+        const sprintId = document.getElementById('newTaskSprint').value || null;
+        const dueDate = document.getElementById('newTaskDueDate').value || null;
+
+        try {
+            await api('/api/tasks', {
+                method: 'POST',
+                body: JSON.stringify({
+                    projectId: state.currentProject.id,
+                    title,
+                    description,
+                    priority,
+                    assigneeId: assigneeId ? Number(assigneeId) : null,
+                    sprintId: sprintId ? Number(sprintId) : null,
+                    dueDate
+                })
+            });
+            showToast('Task created successfully');
+            closeModal('modalCreateTask');
+            document.getElementById('newTaskTitle').value = '';
+            document.getElementById('newTaskDesc').value = '';
+            await loadTasks();
+        } catch (err) {}
+    }
+
+    // Sprints View
+    function renderSprints() {
+        const container = document.getElementById('sprintsList');
+        container.innerHTML = '';
+
+        if (!state.sprints || state.sprints.length === 0) {
+            container.innerHTML = `
+                <div class="table-view-card" style="text-align: center; padding: 40px;">
+                    <p style="color: var(--text-sub); margin-bottom: 12px;">No sprints found for this project.</p>
+                    <button class="btn btn-primary" onclick="openCreateSprintModal()">+ Create Sprint</button>
+                </div>
+            `;
+            return;
+        }
+
+        const userRole = state.currentUser?.role;
+        const isManager = userRole === 'ADMIN' || userRole === 'MANAGER';
+
+        state.sprints.forEach(s => {
+            const sprintTasks = state.tasks.filter(t => t.sprintId === s.id);
+            const doneTasks = sprintTasks.filter(t => t.status === 'DONE' || t.status === 'CLOSED');
+            const percent = sprintTasks.length ? Math.round((doneTasks.length / sprintTasks.length) * 100) : 0;
+
+            let actionBtn = '';
+            if (s.status === 'PLANNED') {
+                actionBtn = isManager ? `<button class="btn btn-sm btn-primary" onclick="startSprint(${s.id})">Start Sprint</button>` : '';
+            } else if (s.status === 'ACTIVE') {
+                actionBtn = isManager ? `<button class="btn btn-sm btn-secondary" onclick="completeSprint(${s.id})">Complete Sprint</button>` : '';
+            }
+
+            const card = document.createElement('div');
+            card.className = 'table-view-card';
+            card.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <h3 style="font-size: 16px; font-weight: 700;">${escapeHtml(s.name)}</h3>
+                        <span class="role-badge column-header-${s.status.toLowerCase()}">${s.status}</span>
+                    </div>
+                    <div>${actionBtn}</div>
+                </div>
+                <div style="font-size: 13px; color: var(--text-sub); margin-bottom: 12px;">
+                    ${s.startDate ? `Dates: ${s.startDate} &rarr; ${s.endDate || 'Ongoing'}` : 'No dates scheduled'}
+                    &bull; <strong>${sprintTasks.length} tasks</strong> (${doneTasks.length} completed)
+                </div>
+                <div style="background: #ebecf0; border-radius: 4px; height: 8px; overflow: hidden;">
+                    <div style="background: var(--status-done); width: ${percent}%; height: 100%;"></div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function openCreateSprintModal() {
+        openModal('modalCreateSprint');
+    }
+
+    async function handleCreateSprint(e) {
+        e.preventDefault();
+        const name = document.getElementById('newSprintName').value.trim();
+        const startDate = document.getElementById('newSprintStart').value || null;
+        const endDate = document.getElementById('newSprintEnd').value || null;
+
+        try {
+            await api('/api/sprints', {
+                method: 'POST',
+                body: JSON.stringify({
+                    projectId: state.currentProject.id,
+                    name,
+                    startDate,
+                    endDate
+                })
+            });
+            showToast('Sprint created');
+            closeModal('modalCreateSprint');
+            document.getElementById('newSprintName').value = '';
+            await loadSprints();
+            renderSprints();
+        } catch (err) {}
+    }
+
+    async function startSprint(sprintId) {
+        try {
+            await api(`/api/sprints/${sprintId}/start`, { method: 'POST' });
+            showToast('Sprint started');
+            await loadSprints();
+            renderSprints();
+        } catch (err) {}
+    }
+
+    async function completeSprint(sprintId) {
+        try {
+            await api(`/api/sprints/${sprintId}/complete`, { method: 'POST' });
+            showToast('Sprint completed');
+            await loadSprints();
+            renderSprints();
+        } catch (err) {}
+    }
+
+    // Projects View
+    function renderProjects() {
+        const container = document.getElementById('projectsGrid');
+        container.innerHTML = '';
+
+        state.projects.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'table-view-card';
+            const memberCount = p.members ? p.members.length : 0;
+            card.innerHTML = `
+                <h3 style="font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">${escapeHtml(p.name)}</h3>
+                <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 14px; min-height: 40px;">${escapeHtml(p.description || 'No description')}</p>
+                <div style="font-size: 12px; color: var(--text-sub); margin-bottom: 12px;"><strong>Members:</strong> ${memberCount} user(s)</div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-sm btn-outline" onclick="selectAndOpenProject(${p.id})">Switch to Project</button>
+                    <button class="btn btn-sm btn-secondary" onclick="openMembersModal(${p.id})">Members</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function selectAndOpenProject(projectId) {
+        document.getElementById('projectSelect').value = projectId;
+        onProjectChanged();
+        switchTab('board');
+    }
+
+    function openCreateProjectModal() {
+        openModal('modalCreateProject');
+    }
+
+    async function handleCreateProject(e) {
+        e.preventDefault();
+        const name = document.getElementById('newProjectName').value.trim();
+        const description = document.getElementById('newProjectDesc').value.trim();
+
+        try {
+            const created = await api('/api/projects', {
+                method: 'POST',
+                body: JSON.stringify({ name, description })
+            });
+            showToast('Project created');
+            closeModal('modalCreateProject');
+            document.getElementById('newProjectName').value = '';
+            document.getElementById('newProjectDesc').value = '';
+            await loadProjects();
+            selectAndOpenProject(created.id);
+        } catch (err) {}
+    }
+
+    // Manage Members Modal
+    let targetProjectForMembers = null;
+
+    async function openMembersModal(projectId) {
+        targetProjectForMembers = state.projects.find(p => p.id === projectId);
+        if (!targetProjectForMembers) return;
+
+        // Populate users dropdown
+        const select = document.getElementById('addMemberUserSelect');
+        select.innerHTML = '';
+        state.users.forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = u.id;
+            opt.textContent = `${u.username} (${u.role})`;
+            select.appendChild(opt);
+        });
+
+        renderProjectMembersList();
+        openModal('modalMembers');
+    }
+
+    function renderProjectMembersList() {
+        const list = document.getElementById('projectMembersList');
+        list.innerHTML = '';
+
+        if (!targetProjectForMembers.members || targetProjectForMembers.members.length === 0) {
+            list.innerHTML = '<span style="font-size: 13px; color: var(--text-sub);">No members yet.</span>';
+            return;
+        }
+
+        const isManager = state.currentUser?.role === 'ADMIN' || state.currentUser?.role === 'MANAGER';
+
+        targetProjectForMembers.members.forEach(m => {
+            const item = document.createElement('div');
+            item.style.display = 'flex';
+            item.style.alignItems = 'center';
+            item.style.justifyContent = 'space-between';
+            item.style.padding = '6px 10px';
+            item.style.background = '#fafbfc';
+            item.style.borderRadius = '4px';
+            item.style.border = '1px solid var(--border)';
+
+            item.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="user-avatar" style="width: 22px; height: 22px; font-size: 11px;">${m.username.charAt(0).toUpperCase()}</div>
+                    <span style="font-size: 13px; font-weight: 600;">${escapeHtml(m.username)}</span>
+                    <span class="role-badge role-${m.role}">${m.role}</span>
+                </div>
+                ${isManager ? `<button class="btn btn-sm btn-outline" style="color: var(--danger);" onclick="removeMember(${m.id})">Remove</button>` : ''}
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    async function handleAddMember() {
+        const select = document.getElementById('addMemberUserSelect');
+        const userId = Number(select.value);
+        if (!userId || !targetProjectForMembers) return;
+
+        try {
+            const updated = await api(`/api/projects/${targetProjectForMembers.id}/members`, {
+                method: 'POST',
+                body: JSON.stringify({ userId })
+            });
+            showToast('Member added');
+            targetProjectForMembers.members = updated.members;
+            await loadProjects();
+            renderProjectMembersList();
+        } catch (err) {}
+    }
+
+    async function removeMember(userId) {
+        if (!targetProjectForMembers) return;
+        try {
+            const updated = await api(`/api/projects/${targetProjectForMembers.id}/members/${userId}`, {
+                method: 'DELETE'
+            });
+            showToast('Member removed');
+            targetProjectForMembers.members = updated.members;
+            await loadProjects();
+            renderProjectMembersList();
+        } catch (err) {}
+    }
+
+    // Audit Log View
+    async function loadAuditLogs() {
+        if (!state.currentProject) return;
+        try {
+            const logs = await api(`/api/audit-logs/projects/${state.currentProject.id}`);
+            const tbody = document.getElementById('auditTableBody');
+            tbody.innerHTML = '';
+
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-sub);">No audit entries found.</td></tr>';
+                return;
+            }
+
+            logs.forEach(l => {
+                const tr = document.createElement('tr');
+                const time = new Date(l.timestamp).toLocaleString();
+                tr.innerHTML = `
+                    <td style="font-size: 12px; color: var(--text-sub);">${time}</td>
+                    <td><strong>${escapeHtml(l.actor)}</strong></td>
+                    <td><span class="role-badge role-DEVELOPER">${l.eventType}</span></td>
+                    <td><span class="tag">${l.entityType} #${l.entityId}</span></td>
+                    <td>${escapeHtml(l.details || '-')}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (err) {}
+    }
+
+    // Users & Roles View (Admin Only)
+    async function renderUsers() {
+        await loadAllUsers();
+        const tbody = document.getElementById('usersTableBody');
+        tbody.innerHTML = '';
+
+        state.users.forEach(u => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>#${u.id}</td>
+                <td><strong>${escapeHtml(u.username)}</strong></td>
+                <td><span class="role-badge role-${u.role}">${u.role}</span></td>
+                <td>
+                    <div style="display: flex; gap: 6px;">
+                        <select id="userRoleSelect_${u.id}" class="form-control" style="width: 140px; padding: 4px 8px; font-size: 12px;">
+                            <option value="ADMIN" ${u.role === 'ADMIN' ? 'selected' : ''}>ADMIN</option>
+                            <option value="MANAGER" ${u.role === 'MANAGER' ? 'selected' : ''}>MANAGER</option>
+                            <option value="DEVELOPER" ${u.role === 'DEVELOPER' ? 'selected' : ''}>DEVELOPER</option>
+                            <option value="VIEWER" ${u.role === 'VIEWER' ? 'selected' : ''}>VIEWER</option>
+                        </select>
+                        <button class="btn btn-sm btn-primary" onclick="changeUserRole(${u.id})">Save</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    async function changeUserRole(userId) {
+        const select = document.getElementById(`userRoleSelect_${userId}`);
+        const role = select.value;
+        try {
+            await api(`/api/users/${userId}/role`, {
+                method: 'PUT',
+                body: JSON.stringify({ role })
+            });
+            showToast(`User role updated to ${role}`);
+            await renderUsers();
+        } catch (err) {}
+    }
+
+    // Modal Helpers
+    function openModal(id) {
+        document.getElementById(id).classList.add('active');
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('active');
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 </script>
 </body>
 </html>
-
