@@ -112,3 +112,4 @@ public class UserService {
         return UserResponse.fromEntity(updated);
     }
 }
+

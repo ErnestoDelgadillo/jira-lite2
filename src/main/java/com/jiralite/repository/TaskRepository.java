@@ -12,3 +12,4 @@ public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificat
     List<Task> findByProjectId(Long projectId);
     List<Task> findBySprintId(Long sprintId);
 }
+

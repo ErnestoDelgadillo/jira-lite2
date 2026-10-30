@@ -22,3 +22,4 @@ public class CommentCreateRequest {
         this.body = body;
     }
 }
+

@@ -22,3 +22,4 @@ public class AddMemberRequest {
         this.userId = userId;
     }
 }
+

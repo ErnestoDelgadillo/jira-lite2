@@ -5,3 +5,4 @@ public class InvalidTransitionException extends RuntimeException {
         super(message);
     }
 }
+

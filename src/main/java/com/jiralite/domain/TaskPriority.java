@@ -6,3 +6,4 @@ public enum TaskPriority {
     HIGH,
     CRITICAL
 }
+

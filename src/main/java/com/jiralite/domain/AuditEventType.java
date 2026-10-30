@@ -14,3 +14,4 @@ public enum AuditEventType {
     TASK_STATUS_CHANGED,
     COMMENT_ADDED
 }
+

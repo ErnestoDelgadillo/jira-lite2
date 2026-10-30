@@ -48,3 +48,4 @@ public class AuditLogController {
         throw new BadRequestException("Either projectId or taskId query parameter must be provided");
     }
 }
+

@@ -11,3 +11,4 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
     List<AuditLog> findByProjectIdOrderByTimestampDesc(Long projectId);
     List<AuditLog> findByTaskIdOrderByTimestampDesc(Long taskId);
 }
+

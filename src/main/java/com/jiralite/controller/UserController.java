@@ -36,3 +36,4 @@ public class UserController {
         return ResponseEntity.ok(userService.changeUserRole(id, request.getRole()));
     }
 }
+

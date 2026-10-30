@@ -94,3 +94,4 @@ public class SecurityService {
         return user != null && (user.getRole() == Role.ADMIN || user.getRole() == Role.MANAGER);
     }
 }
+
