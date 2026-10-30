@@ -125,7 +125,23 @@ public class JiraLiteIntegrationTest {
     }
 
     @Test
-    @DisplayName("Security: Unauthenticated requests are rejected with 401")
+    @DisplayName("Public Access: Root / returns 200 OK without requiring authentication")
+    void testRootEndpointPublicAccess() throws Exception {
+        // As JSON
+        mockMvc.perform(get("/")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("UP")))
+                .andExpect(jsonPath("$.application", is("Jira Lite")));
+
+        // As HTML (e.g. browser navigation)
+        mockMvc.perform(get("/")
+                        .accept(MediaType.TEXT_HTML))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Security: Unauthenticated requests to protected endpoints are rejected with 401")
     void testUnauthenticatedRequests() throws Exception {
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isUnauthorized());

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jira Lite - Task Management Backend</title>
+    <style>
+        :root {
+            --primary: #0052cc;
+            --primary-hover: #0747a6;
+            --bg: #f4f5f7;
+            --surface: #ffffff;
+            --text: #172b4d;
+            --text-secondary: #5e6c84;
+            --border: #dfe1e6;
+            --success: #36b37e;
+            --warning: #ffab00;
+            --danger: #de350b;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--surface);
+            padding: 24px 30px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .badge-online {
+            background-color: #e3fcef;
+            color: #006644;
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-online::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #36b37e;
+            border-radius: 50%;
+        }
+
+        h1 {
+            font-size: 26px;
+            color: var(--primary);
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--surface);
+            padding: 20px 24px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: var(--text);
+            border-bottom: 2px solid #ebecf0;
+            padding-bottom: 8px;
+        }
+
+        .accounts-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .accounts-table th, .accounts-table td {
+            text-align: left;
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .accounts-table th {
+            background: #fafbfc;
+            color: var(--text-secondary);
+        }
+
+        .role-pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .role-ADMIN { background: #ffebe6; color: #bf2600; }
+        .role-MANAGER { background: #eae6ff; color: #403294; }
+        .role-DEVELOPER { background: #deebff; color: #0747a6; }
+        .role-VIEWER { background: #e3fcef; color: #006644; }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: #ebf2ff;
+        }
+
+        .interactive-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        select, input {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.2);
+        }
+
+        pre {
+            background: #253858;
+            color: #f4f5f7;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            overflow-x: auto;
+            max-height: 250px;
+            font-family: SFMono-Medium, "SF Mono", "Segoe UI Mono", Menlo, Courier, monospace;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .api-table th, .api-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .api-table th {
+            background: #fafbfc;
+            color: var(--text-secondary);
+        }
+
+        .method {
+            font-weight: 700;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .method-GET { background: #e3fcef; color: #006644; }
+        .method-POST { background: #deebff; color: #0747a6; }
+        .method-PUT, .method-PATCH { background: #fff0b3; color: #172b4d; }
+        .method-DELETE { background: #ffebe6; color: #bf2600; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div>
+            <h1>Jira Lite</h1>
+            <p class="subtitle">Task Management API &mdash; Spring Boot 3.3.5 &bull; Java 21 &bull; Spring Security JWT</p>
+        </div>
+        <div>
+            <span class="badge-online">Application Running</span>
+        </div>
+    </header>
+
+    <div class="grid">
+        <!-- Pre-configured Credentials -->
+        <div class="card">
+            <h2>Pre-configured Test Accounts</h2>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                The application starts with default accounts seeded in the H2 in-memory database:
+            </p>
+            <table class="accounts-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Password</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>admin</strong></td>
+                        <td><code>admin123</code></td>
+                        <td><span class="role-pill role-ADMIN">ADMIN</span></td>
+                        <td><button class="btn btn-sm btn-outline" onclick="selectUser('admin', 'admin123')">Select</button></td>
+                    </tr>
+                    <tr>
+                        <td><strong>manager</strong></td>
+                        <td><code>manager123</code></td>
+                        <td><span class="role-pill role-MANAGER">MANAGER</span></td>
+                        <td><button class="btn btn-sm btn-outline" onclick="selectUser('manager', 'manager123')">Select</button></td>
+                    </tr>
+                    <tr>
+                        <td><strong>developer</strong></td>
+                        <td><code>developer123</code></td>
+                        <td><span class="role-pill role-DEVELOPER">DEVELOPER</span></td>
+                        <td><button class="btn btn-sm btn-outline" onclick="selectUser('developer', 'developer123')">Select</button></td>
+                    </tr>
+                    <tr>
+                        <td><strong>viewer</strong></td>
+                        <td><code>viewer123</code></td>
+                        <td><span class="role-pill role-VIEWER">VIEWER</span></td>
+                        <td><button class="btn btn-sm btn-outline" onclick="selectUser('viewer', 'viewer123')">Select</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="margin-top: 15px; font-size: 13px;">
+                <strong>Database Console:</strong> <a href="/h2-console" target="_blank" style="color: var(--primary);">/h2-console</a>
+                <br>
+                <span style="font-size: 12px; color: var(--text-secondary);">JDBC URL: <code>jdbc:h2:mem:jiralitedb</code> &bull; User: <code>sa</code> &bull; Password: (empty)</span>
+            </div>
+        </div>
+
+        <!-- Interactive Quick-Test Console -->
+        <div class="card">
+            <h2>Interactive API Tester</h2>
+            <div class="interactive-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="usernameInput" value="admin">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="passwordInput" value="admin123">
+                </div>
+                <button class="btn" onclick="login()">Log In &amp; Acquire JWT</button>
+
+                <div class="action-bar" id="testButtons" style="display: none;">
+                    <button class="btn btn-sm btn-outline" onclick="callApi('/api/users')">List Users</button>
+                    <button class="btn btn-sm btn-outline" onclick="callApi('/api/projects')">List Projects</button>
+                    <button class="btn btn-sm btn-outline" onclick="callApi('/api/tasks')">List Tasks</button>
+                </div>
+
+                <div style="margin-top: 10px;">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">Response Log</label>
+                    <pre id="output">Click "Log In" above to authenticate and test endpoints.</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Reference Overview -->
+    <div class="card">
+        <h2>REST API Reference</h2>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Path</th>
+                    <th>Description</th>
+                    <th>Permissions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="method method-POST">POST</span></td>
+                    <td><code>/api/auth/register</code></td>
+                    <td>Register a new user</td>
+                    <td>Public</td>
+                </tr>
+                <tr>
+                    <td><span class="method method-POST">POST</span></td>
+                    <td><code>/api/auth/login</code></td>
+                    <td>Authenticate and receive JWT token</td>
+                    <td>Public</td>
+                </tr>
+                <tr>
+                    <td><span class="method method-GET">GET</span></td>
+                    <td><code>/api/users</code></td>
+                    <td>List all users</td>
+                    <td>Authenticated</td>
+                </tr>
+                <tr>
+                    <td><span class="method method-PUT">PUT</span></td>
+                    <td><code>/api/users/{id}/role</code></td>
+                    <td>Change a user's role</td>
+                    <td>Admin only</td>
+                </tr>
+                <tr>
+                    <td><span class="method method-POST">POST</span></td>
+                    <td><code>/api/projects</code></td>
+                    <td>Create a project</td>
+                    <td>Manager, Admin</td>
+                </tr>
+                <tr>
+                    <td><span class="method method-GET">GET</span></td>
+                    <td><code>/api/projects</code></td>
+                    <td>List projects</td>
+                    <td>Authenticated</td>
+                </tr>
+                <tr>
+                    <td><span class="method method-POST">POST</span></td>
+                    <td><code>/api/projects/{id}/members</code></td>
+                    <td>Add member to project</td>
+                    <td>Project Manager, Admin</td>
+                </tr>
+                <tr>
+                    <td><span class="method method-POST">POST</span></td>
+                    <td><code>/api/sprints</code></td>
+                    <td>Create sprint</td>
+                    <td>Project Manager, Admin</td>
+                </tr>
+                <tr>
+                    <td><span class="method method-POST">POST</span></td>
+                    <td><code>/api/sprints/{id}/start</code></td>
+                    <td>Start sprint (PLANNED &rarr; ACTIVE)</td>
+                    <td>Project Manager, Admin</td>
+                </tr>
+                <tr>
+                    <td><span class="method method-POST">POST</span></td>
+                    <td><code>/api/sprints/{id}/complete</code></td>
+                    <td>Complete sprint (ACTIVE &rarr; COMPLETED)</td>
+                    <td>Project Manager, Admin</td>
+                </tr>
+                <tr>
+                    <td><span class="method method-POST">POST</span></td>
+                    <td><code>/api/tasks</code></td>
+                    <td>Create task</td>
+                    <td>Developer, Manager, Admin</td>
+                </tr>
+                <tr>
+                    <td><span class="method method-POST">POST</span></td>
+                    <td><code>/api/tasks/{id}/transition</code></td>
+                    <td>Transition task status</td>
+                    <td>Workflow rules &amp; roles</td>
+                </tr>
+                <tr>
+                    <td><span class="method method-GET">GET</span></td>
+                    <td><code>/api/tasks?projectId=&amp;status=&amp;priority=</code></td>
+                    <td>List tasks with filters</td>
+                    <td>Project Member, Admin</td>
+                </tr>
+                <tr>
+                    <td><span class="method method-POST">POST</span></td>
+                    <td><code>/api/tasks/{taskId}/comments</code></td>
+                    <td>Add comment to task</td>
+                    <td>Any Project Member (including Viewer)</td>
+                </tr>
+                <tr>
+                    <td><span class="method method-GET">GET</span></td>
+                    <td><code>/api/audit-logs/projects/{projectId}</code></td>
+                    <td>Read audit log per project</td>
+                    <td>Project Member, Admin</td>
+                </tr>
+                <tr>
+                    <td><span class="method method-GET">GET</span></td>
+                    <td><code>/api/audit-logs/tasks/{taskId}</code></td>
+                    <td>Read audit log per task</td>
+                    <td>Project Member, Admin</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let currentToken = null;
+
+    function selectUser(username, password) {
+        document.getElementById('usernameInput').value = username;
+        document.getElementById('passwordInput').value = password;
+        login();
+    }
+
+    async function login() {
+        const username = document.getElementById('usernameInput').value;
+        const password = document.getElementById('passwordInput').value;
+        const output = document.getElementById('output');
+        output.textContent = "Logging in...";
+
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            output.textContent = JSON.stringify(data, null, 2);
+
+            if (res.ok && data.token) {
+                currentToken = data.token;
+                document.getElementById('testButtons').style.display = 'flex';
+            }
+        } catch (err) {
+            output.textContent = "Error: " + err.message;
+        }
+    }
+
+    async function callApi(path) {
+        if (!currentToken) {
+            alert("Please log in first!");
+            return;
+        }
+        const output = document.getElementById('output');
+        output.textContent = "Calling " + path + "...";
+
+        try {
+            const res = await fetch(path, {
+                headers: {
+                    'Authorization': 'Bearer ' + currentToken
+                }
+            });
+            const data = await res.json();
+            output.textContent = JSON.stringify(data, null, 2);
+        } catch (err) {
+            output.textContent = "Error: " + err.message;
+        }
+    }
+</script>
+</body>
+</html>
